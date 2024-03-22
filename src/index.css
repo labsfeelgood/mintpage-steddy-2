@@ -1,0 +1,199 @@
+@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200;0,6..12,300;0,6..12,400;0,6..12,500;0,6..12,600;0,6..12,700;0,6..12,800;0,6..12,900;0,6..12,1000;1,6..12,200;1,6..12,300;1,6..12,400;1,6..12,500;1,6..12,600;1,6..12,700;1,6..12,800;1,6..12,900;1,6..12,1000&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root{
+  --ClashDisplayR: "ClashDisplay-Regular";
+  --ClashDisplayM: "ClashDisplay-Medium";
+  --ClashDisplayB: "ClashDisplay-Bold";
+  --ClashDisplaySB: "ClashDisplay-SemiBold";
+
+  --libre: 'Libre Baskerville', serif;
+  --normalF: 'Nunito Sans', sans-serif;
+
+}
+
+html{
+  width: 100%;
+}
+
+body {
+  margin: 0;
+  width: 100%;
+  /* background-color: #EAEAEA; */
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body > *{
+  width: 100%;
+  overflow: hidden;
+}
+
+
+@font-face {
+  font-family: 'ClashDisplay-Medium';
+  src: url('./assests/fonts/ClashDisplay-Medium.woff2') format('woff2'),
+       url('./assests/fonts/ClashDisplay-Medium.woff') format('woff');
+       font-weight: 500;
+       font-display: swap;
+       font-style: normal;
+}
+
+
+@font-face {
+  font-family: 'ClashDisplay-Semibold';
+  src: url('./assests/fonts/ClashDisplay-Semibold.woff2') format('woff2'),
+       url('./assests/fonts/ClashDisplay-Semibold.woff') format('woff');
+       font-weight: 600;
+       font-display: swap;
+       font-style: normal;
+}
+
+
+@font-face {
+  font-family: 'ClashDisplay-Bold';
+  src: url('./assests/fonts/ClashDisplay-Bold.woff2') format('woff2'),
+       url('./assests/fonts/ClashDisplay-Bold.woff') format('woff');
+       font-weight: 700;
+       font-display: swap;
+       font-style: normal;
+}
+
+
+
+/* Satoshi Font */
+@font-face {
+  font-family: 'Satoshi-Light';
+  src: url('./assests/fonts/satoshi/Satoshi-Light.woff') format('woff'),
+       url('./assests/fonts/satoshi/Satoshi-Light.ttf') format('ttf'),
+       url('./assests/fonts/satoshi/Satoshi-Light.woff2') format('woff2');
+       font-weight: 100;
+       font-display: swap;
+       font-style: normal;
+}
+@font-face {
+  font-family: 'Satoshi-Regular';
+  src: url('./assests/fonts/satoshi/Satoshi-Regular.woff') format('woff'),
+       url('./assests/fonts/satoshi/Satoshi-Regular.ttf') format('ttf'),
+       url('./assests/fonts/satoshi/Satoshi-Regular.woff2') format('woff2');
+       font-weight: 500;
+       font-display: swap;
+       font-style: normal;
+}
+@font-face {
+  font-family: 'Satoshi-Medium';
+  src: url('./assests/fonts/satoshi/Satoshi-Medium.woff') format('woff'),
+       url('./assests/fonts/satoshi/Satoshi-Medium.ttf') format('ttf'),
+       url('./assests/fonts/satoshi/Satoshi-Medium.woff2') format('woff2');
+       font-weight: 600;
+       font-display: swap;
+       font-style: normal;
+}
+@font-face {
+  font-family: 'Satoshi-Bold';
+  src: url('./assests/fonts/satoshi/Satoshi-Bold.woff') format('woff'),
+       url('./assests/fonts/satoshi/Satoshi-Bold.ttf') format('ttf'),
+       url('./assests/fonts/satoshi/Satoshi-Bold.woff2') format('woff2');
+       font-weight: 700;
+       font-display: swap;
+       font-style: normal;
+}
+@font-face {
+  font-family: 'Satoshi-Black';
+  src: url('./assests/fonts/satoshi/Satoshi-Black.woff') format('woff'),
+       url('./assests/fonts/satoshi/Satoshi-Black.ttf') format('ttf'),
+       url('./assests/fonts/satoshi/Satoshi-Black.woff2') format('woff2');
+       font-weight: 900;
+       font-display: swap;
+       font-style: normal;
+}
+
+
+
+/* Nohemi Font */
+
+@font-face {
+  font-family: 'Nohemi-Thin';
+  src: url('./assests/fonts/Nohemi-Thin-BF6438cc57e2011.woff') format('woff'),
+       url('./assests/fonts/Nohemi-Thin-BF6438cc5896c67.ttf') format('ttf'),
+       url('./assests/fonts/Nohemi-Thin-BF6438cc577ef3b.otf') format('otf');
+       font-weight: 100;
+       font-display: swap;
+       font-style: normal;
+}
+@font-face {
+  font-family: 'Nohemi-ExtraLight';
+  src: url('./assests/fonts/Nohemi-ExtraLight-BF6438cc581502c.woff') format('woff'),
+       url('./assests/fonts/Nohemi-ExtraLight-BF6438cc58a2634.ttf') format('ttf'),
+       url('./assests/fonts/Nohemi-ExtraLight-BF6438cc57e06d5.otf') format('otf');
+       font-weight: 200;
+       font-display: swap;
+       font-style: normal;
+}
+@font-face {
+  font-family: 'Nohemi-Light';
+  src: url('./assests/fonts/Nohemi-Light-BF6438cc5702321.woff') format('woff'),
+       url('./assests/fonts/Nohemi-Light-BF6438cc5899919.ttf') format('ttf'),
+       url('./assests/fonts/Nohemi-Light-BF6438cc583f70b.otf') format('otf');
+       font-weight: 300;
+       font-display: swap;
+       font-style: normal;
+}
+@font-face {
+  font-family: 'Nohemi-Regular';
+  src: url('./assests/fonts/Nohemi-Regular-BF6438cc579d934.woff') format('woff'),
+       url('./assests/fonts/Nohemi-Regular-BF6438cc4d0e493.ttf') format('ttf'),
+       url('./assests/fonts/Nohemi-Regular-BF6438cc58b98fc.otf') format('otf');
+       font-weight: 400;
+       font-display: swap;
+       font-style: normal;
+}
+@font-face {
+  font-family: 'Nohemi-Medium';
+  src: url('./assests/fonts/Nohemi-Medium-BF6438cc57ddecd.woff') format('woff'),
+       url('./assests/fonts/Nohemi-Medium-BF6438cc5883899.ttf') format('ttf'),
+       url('./assests/fonts/Nohemi-Medium-BF6438cc581a509.otf') format('otf');
+       font-weight: 500;
+       font-display: swap;
+       font-style: normal;
+}
+@font-face {
+  font-family: 'Nohemi-Bold';
+  src: url('./assests/fonts/Nohemi-Bold-BF6438cc577b524.woff') format('woff'),
+       url('./assests/fonts/Nohemi-Bold-BF6438cc587b5b5.ttf') format('ttf'),
+       url('./assests/fonts/Nohemi-Bold-BF6438cc5812315.otf') format('otf');
+       font-weight: 600;
+       font-display: swap;
+       font-style: normal;
+}
+@font-face {
+  font-family: 'Nohemi-SemiBold';
+  src: url('./assests/fonts/Nohemi-SemiBold-BF6438cc57db2ff.woff') format('woff'),
+       url('./assests/fonts/Nohemi-SemiBold-BF6438cc588a48a.ttf') format('ttf'),
+       url('./assests/fonts/Nohemi-SemiBold-BF6438cc588b5e5.otf') format('otf');
+       font-weight: 700;
+       font-display: swap;
+       font-style: normal;
+}
+@font-face {
+  font-family: 'Nohemi-ExtraBold';
+  src: url('./assests/fonts/Nohemi-ExtraBold-BF6438cc5761ae2.woff') format('woff'),
+       url('./assests/fonts/Nohemi-ExtraBold-BF6438cc5881baf.ttf') format('ttf'),
+       url('./assests/fonts/Nohemi-ExtraBold-BF6438cc58a4c3c.otf') format('otf');
+       font-weight: 800;
+       font-display: swap;
+       font-style: normal;
+}
+@font-face {
+  font-family: 'Nohemi-Black';
+  src: url('./assests/fonts/Nohemi-Black-BF6438cc565e67b.woff') format('woff'),
+       url('./assests/fonts/Nohemi-Black-BF6438cc58744d4.ttf') format('ttf'),
+       url('./assests/fonts/Nohemi-Black-BF6438cc5874bd2.otf') format('otf');
+       font-weight: 900;
+       font-display: swap;
+       font-style: normal;
+}
