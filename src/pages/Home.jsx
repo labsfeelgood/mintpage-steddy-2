@@ -41,11 +41,13 @@ import { useTotalMinted } from "../hooks/useTotalMinted.js";
 import { useTotalSupply } from "../hooks/useTotalSupply.js";
 import { useMaxSupply } from "../hooks/useMaxSupply.js";
 import { useApproveWrite } from "../hooks/useApproveWrite.js";
-import whitelist from "../whitelist.json"
+import whitelist from "../whitelist.json";
 import { usePrice } from "../hooks/usePrice.js";
 import { useAlreadyMinted } from "../hooks/useAlreadyMinted.js";
-import {useMintWrite} from "../hooks/useMintWrite.js"
+import { useMintWrite } from "../hooks/useMintWrite.js";
 import { formatUnits } from "ethers/lib/utils.js";
+
+import "./Home.css";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -94,11 +96,18 @@ export default function MintPage() {
   const { alreadyminted, isLoadingAlreadyMinted } = useAlreadyMinted();
   const { price, isLoadingPrice } = usePrice();
   const { address } = useAccount();
-  const { approveWrite, approveWriteLoading, approveWriteSuccess } =
-  useApproveWrite(getTotalAmount());
-  const [mainText, setMainText] = useState("Connect")
-  const { mintLoading, mintSuccess,mintWrite } =
-  useMintWrite(count, maxQuantity, proof);
+  const {
+    approveWrite,
+    approveWriteLoading,
+    approveWriteSuccess,
+    approveTxHash,
+  } = useApproveWrite(getTotalAmount());
+  const [mainText, setMainText] = useState("Connect");
+  const { mintLoading, mintSuccess, mintWrite, mintTxHash } = useMintWrite(
+    count,
+    maxQuantity,
+    proof
+  );
 
   // useApproveWrite(
   //   (Number(enteredAmount) - Number(formatEther(allowance))) * 10 ** 18
@@ -115,42 +124,41 @@ export default function MintPage() {
 
   const handleIncrement = () => {
     if (totalMinted + count + 1 < maxSupply) {
-      setCount(prevCount => prevCount + 1);
+      setCount((prevCount) => prevCount + 1);
     }
   };
 
   const handleDecrement = () => {
     if (count > 1) {
-      setCount(prevCount => prevCount - 1);
+      setCount((prevCount) => prevCount - 1);
     }
   };
 
-  function getTotalAmount(){
-    if(price){
-      let result = Number(price)*count
-      return result
+  function getTotalAmount() {
+    if (price) {
+      let result = Number(price) * count;
+      return result;
     }
-    
-    return 0
+
+    return 0;
   }
-  function getAllowedMints(){
-    if(address==null){
-      return
+  function getAllowedMints() {
+    if (address == null) {
+      return;
     }
-    let proofData = getQuantityAndProof(address)
-    if(proofData==null){
-      return
+    let proofData = getQuantityAndProof(address);
+    if (proofData == null) {
+      return;
     }
-    let maxQty = proofData.quantity
-  
+    let maxQty = proofData.quantity;
+
     // console.log("ALREADY MINTED ", x.toNumber())
     // console.log("MAX QTY ", maxQty)
-    let allowedMniting = maxQty-alreadyminted
-    console.log("Allowed minting ", allowedMniting)
-    
-    return allowedMniting
-  }
+    let allowedMniting = maxQty - alreadyminted;
+    console.log("Allowed minting ", allowedMniting);
 
+    return allowedMniting;
+  }
 
   function getQuantityAndProof(address) {
     for (const entry of whitelist) {
@@ -161,9 +169,6 @@ export default function MintPage() {
     return null; // Address not found
   }
 
-
-
-
   const loadImages = async () => {
     const images = await importAll(require.context("./NFT", false, /\.(png)$/));
     setImagesLoaded(true);
@@ -171,7 +176,6 @@ export default function MintPage() {
   };
 
   useEffect(() => {
-
     // console.log("TOTAL MINTED ", totalMinted)
     // console.log("TOTAL SUPPLY ", totalSupply)
 
@@ -185,10 +189,11 @@ export default function MintPage() {
         setImageArray(newImageArray);
         // Example code for setting currentIndex to a new random index every 5 seconds
         const interval = setInterval(() => {
-          setCurrentIndex((prevIndex) => (prevIndex + 1) % newImageArray.length);
+          setCurrentIndex(
+            (prevIndex) => (prevIndex + 1) % newImageArray.length
+          );
         }, 1000);
 
-        
         return () => {
           clearInterval(interval);
           isMounted = false;
@@ -203,8 +208,6 @@ export default function MintPage() {
     setIsSelected(index);
   };
 
-
-
   const handleOpenClick = () => {
     setIsOpen(!isOpen);
   };
@@ -217,31 +220,28 @@ export default function MintPage() {
     setIsWalletOpen(!isWalletOpen);
   };
 
-  useEffect(()=>{
-    if(address==null || allowance==null||getTotalAmount()==0){
-      return
+  useEffect(() => {
+    if (address == null || allowance == null || getTotalAmount() == 0) {
+      return;
     }
-    let proofData = getQuantityAndProof(address)
-    if(proofData==null){
-      alert("Your connected wallet is not whitelisted")
-      return
+    let proofData = getQuantityAndProof(address);
+    if (proofData == null) {
+      alert("Your connected wallet is not whitelisted");
+      return;
     }
     // return
-    let _proof = proofData.proof
-    setProof(_proof)
+    let _proof = proofData.proof;
+    setProof(_proof);
     // proof = JSON.stringify(proof)
     // proof = "["+proof+"]"
-    let maxQty = proofData.quantity
-    setMaxQuantity(maxQty)
-    if (Number(formatUnits(allowance,6)) <=Number(getTotalAmount())) {
-      setMainText("Mint")
-      
-      
-    }else{
-      setMainText("Approve")
+    let maxQty = proofData.quantity;
+    setMaxQuantity(maxQty);
+    if (Number(formatUnits(allowance, 6)) <= Number(getTotalAmount())) {
+      setMainText("Mint");
+    } else {
+      setMainText("Approve");
     }
-  },[count])
-
+  }, [count]);
 
   const submit = async () => {
     // if (Number(enteredAmount) === 0) {
@@ -271,49 +271,48 @@ export default function MintPage() {
     //   return;
     // }
 
-    let proofData = getQuantityAndProof(address)
-    if(proofData==null){
-      alert("Your connected wallet is not whitelisted")
-      return
+    let proofData = getQuantityAndProof(address);
+    if (proofData == null) {
+      alert("Your connected wallet is not whitelisted");
+      return;
     }
     // return
-    let _proof = proofData.proof
-    setProof(_proof)
+    let _proof = proofData.proof;
+    setProof(_proof);
     // proof = JSON.stringify(proof)
     // proof = "["+proof+"]"
-    let maxQty = proofData.quantity
-    setMaxQuantity(maxQty)
-    console.log("PROOF ", proof)
-    console.log("MX QTY ", maxQty)
-    console.log("TOT AMT ", getTotalAmount())
+    let maxQty = proofData.quantity;
+    setMaxQuantity(maxQty);
+    console.log("PROOF ", proof);
+    console.log("MX QTY ", maxQty);
+    console.log("TOT AMT ", getTotalAmount());
 
-    console.log("allowance ",Number(allowance))
+    console.log("allowance ", Number(allowance));
 
-    if (Number(allowance) <Number(getTotalAmount())) {
-      console.log("ALLOWANCE IS LESS")
-      setMainText("Approving")
-      
+    if (Number(allowance) < Number(getTotalAmount())) {
+      console.log("ALLOWANCE IS LESS");
+      setMainText("Approving");
+
       await approveWrite(getTotalAmount());
-      console.log("Approve laoding ", approveWriteLoading)
-      if(approveWriteSuccess){
-        console.log("MINTING ", approveWriteSuccess)
-        await mintWrite(count, maxQuantity, proof)
-        
+      console.log("Approve laoding ", approveWriteLoading);
+
+      if (approveWriteSuccess) {
+        setMainText("Minting");
+        console.log("MINTING ", approveWriteSuccess);
+        await mintWrite(count, maxQuantity, proof);
       }
-      
-    }else{
-      console.log("DIRECT MINTING ")
-      console.log("maxqty ", maxQuantity)
-      console.log("count ", count)
-      console.log("proof ", proof)
-      setMainText("Minting")
-      console.log("Mint laoding ", mintLoading)
-        await mintWrite(count, maxQuantity, proof)
+    } else {
+      console.log("DIRECT MINTING ");
+      console.log("maxqty ", maxQuantity);
+      console.log("count ", count);
+      console.log("proof ", proof);
+      setMainText("Minting");
+      console.log("Mint laoding ", mintLoading);
+      await mintWrite(count, maxQuantity, proof);
     }
 
     // setShowBetText(true);
   };
-
 
   useEffect(() => {
     if (isOpen) {
@@ -330,6 +329,18 @@ export default function MintPage() {
     }
   };
 
+  const txHashToShow = useMemo(() => {
+    if (mainText === "Minting" && mintTxHash) {
+      return mintTxHash;
+    }
+
+    if (mainText === "Approving" && approveTxHash) {
+      return approveTxHash;
+    }
+
+    return "";
+  }, [approveTxHash, mainText, mintTxHash]);
+
   function About() {
     return (
       <div className="mt-6 flex flex-col gap-4">
@@ -337,7 +348,6 @@ export default function MintPage() {
           <div>
             <div className="text-gray-400">Suppply</div>
             <div>10000</div>
-            
           </div>
           <div>
             <div className="text-gray-400">Royalties</div>
@@ -363,7 +373,7 @@ export default function MintPage() {
           on the Blockchain. They will be traded on the open market immediately
           after the mint is completed.
         </p>
-        
+
         <button className="bg-[#ffffff20] rounded-lg py-3 px-6 font-semibold w-fit flex items-center gap-3 hover:bg-[#ffffff40] transition-all">
           <CiGlobe />
           sappchat/DN404
@@ -475,6 +485,7 @@ export default function MintPage() {
               href="https://twitter.com/SappChatApp"
               target="_blank"
               className="bg-[#2D2832] rounded-lg py-3 px-6 text-xl flex-1 flex items-center justify-center hover:bg-[#453d4d] transition-all"
+              rel="noreferrer"
             >
               <FaTwitter />
             </a>
@@ -482,6 +493,7 @@ export default function MintPage() {
               href="https://t.me/sappchat"
               target="_blank"
               className="bg-[#2D2832] rounded-lg py-3 px-6 text-xl flex-1 flex items-center justify-center hover:bg-[#453d4d] transition-all"
+              rel="noreferrer"
             >
               <FaTelegram />
             </a>
@@ -513,7 +525,6 @@ export default function MintPage() {
       </div>
     );
   }
-
 
   return (
     <>
@@ -573,12 +584,11 @@ export default function MintPage() {
           {imagesLoaded ? (
             imageArray.map((item, index) => {
               return (
-                <div style={{ display: currentIndex === index ? 'block' : 'none' }} className="w-full sm:w-[40vw] xl:w-[25vw] mx-auto rounded-3xl aspect-square bg-[#ffffff20] relative overflow-hidden">
-                  <img
-                    className="block w-full"
-                    src={item.src}
-                    alt=""
-                  />
+                <div
+                  style={{ display: currentIndex === index ? "block" : "none" }}
+                  className="w-full sm:w-[40vw] xl:w-[25vw] mx-auto rounded-3xl aspect-square bg-[#ffffff20] relative overflow-hidden"
+                >
+                  <img className="block w-full" src={item.src} alt="" />
                   <div className="opacity-80 absolute bottom-0 right-0 bg-[#636056] w-52 sm:w-64 sm:h-10 h-9 text-[#636056 flex justify-center items-center text-xl sm:text-2xl font-normalF font-bold uppercase">
                     {item.title}
                   </div>
@@ -624,7 +634,7 @@ export default function MintPage() {
                 <div className="font-bold flex justify-between">
                   <span>Public</span>
                   {/* <span>{parseFloat(formatUnits(price,6)).toString()} USDT</span> */}
-                  <span>{Number(price)/1000000} USDT</span>
+                  <span>{Number(price) / 1000000} USDT</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-green-500">Live</span>
@@ -632,10 +642,14 @@ export default function MintPage() {
                     {totalMinted} / {maxSupply} Minted
                   </span>
                 </div>
-                <div style={{ textAlign: 'center' }}>
-                  <button className="minus-button" onClick={handleDecrement}>-</button>
-                  <span style={{ margin: '0 10px' }}>{count}</span>
-                  <button className="plus-button" onClick={handleIncrement}>+</button>
+                <div style={{ textAlign: "center" }}>
+                  <button className="minus-button" onClick={handleDecrement}>
+                    -
+                  </button>
+                  <span style={{ margin: "0 10px" }}>{count}</span>
+                  <button className="plus-button" onClick={handleIncrement}>
+                    +
+                  </button>
                 </div>
                 <div className="rounded-full bg-[#ffffff20] p-[6px] my-4"></div>
 
@@ -645,7 +659,7 @@ export default function MintPage() {
                     className="flex items-center gap-1"
                     // onClick={handleOpenClick}
                   >
-                    Total amount : {formatUnits(getTotalAmount(),6)}{" "} USDT
+                    Total amount : {formatUnits(getTotalAmount(), 6)} USDT
                     {/* <span
                       className={`font-bold text-xl leading-none transition-all duration-500 ${
                         isOpen ? "rotate-180" : " "
@@ -655,7 +669,7 @@ export default function MintPage() {
                     </span> */}
                   </span>
                 </div>
-{/* 
+                {/* 
                 <div
                   style={{ maxHeight: isOpen ? `${dropdownHeight}px` : "0px" }}
                   className="overflow-hidden transition-all duration-500"
@@ -684,17 +698,30 @@ export default function MintPage() {
                 </div>
 
  */}
-                {
-                  address?<button
-                  onClick={submit}
-                  disabled={approveWriteLoading||mintLoading}
-                  className="main-button bg-white rounded-lg p-4 text-black font-semibold"
-                >
-                  {mainText}
-                </button>:
+                {address ? (
+                  <button
+                    onClick={submit}
+                    disabled={approveWriteLoading || mintLoading}
+                    className="mint-button disabled:bg-red rounded-lg p-4 text-black font-semibold"
+                  >
+                    {mainText}
+                  </button>
+                ) : (
                   <ConnectButton showBalance={false} chainStatus="icon" />
-                }
-                
+                )}
+                {txHashToShow ? (
+                  <p className="text-center mt-1">
+                    Check transaction on
+                    <a
+                      target="_blank"
+                      href={`https://mumbai.polygonscan.com/tx/${txHashToShow}`}
+                      rel="noreferrer"
+                      className="ml-1 text-green-500"
+                    >
+                      Explorer
+                    </a>
+                  </p>
+                ) : null}
               </div>
             )}
             {isSelected === 1 && <About />}

@@ -2,17 +2,18 @@ import { useSigner } from "wagmi";
 import { USDT_CONTRACT, STEDDY_CONTRACT } from "../constants";
 import { useState } from "react";
 import { Contract, utils } from "ethers";
-import erc20ABI from "../erc20ABI.json"
-import STEDDYABI from "../STEDDYABI.json"
+import erc20ABI from "../erc20ABI.json";
+import STEDDYABI from "../STEDDYABI.json";
 
 export function useMintWrite(count, maxQuantity, proof) {
   const { data: signer } = useSigner();
   const [states, setStates] = useState({
     isLoading: false,
     isSuccess: false,
+    txHash: "",
   });
 
-  const { isLoading, isSuccess } = states;
+  const { isLoading, isSuccess, txHash } = states;
 
   const mintWrite = async (count, maxQuantity, proof) => {
     try {
@@ -23,11 +24,15 @@ export function useMintWrite(count, maxQuantity, proof) {
       }));
 
       const contract = new Contract(STEDDY_CONTRACT, STEDDYABI, signer);
-      const tx = await contract.mint(
-        count, maxQuantity, proof
-      );
+      const tx = await contract.mint(count, maxQuantity, proof);
 
-      console.log("Mint tx ", tx)
+      console.log("Mint tx ", tx);
+
+      setStates((prevValue) => ({
+        ...prevValue,
+        txHash: tx.hash,
+      }));
+
       await tx.wait();
 
       setStates((prevValue) => ({
@@ -49,5 +54,6 @@ export function useMintWrite(count, maxQuantity, proof) {
     mintLoading: isLoading,
     mintSuccess: isSuccess,
     mintWrite,
+    mintTxHash: txHash,
   };
 }
