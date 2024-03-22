@@ -1,51 +1,51 @@
-iframe
-{
-    display: none;
+iframe {
+  display: none;
 }
 
-.mint-button{
-    width: 100%;
-    text-align: center;
-    font-weight: 700;
-    align-items: center;
-    justify-content: center;
-    justify-self: center;   
+.mint-button {
+  width: 100%;
+  text-align: center;
+  font-weight: 700;
+  align-items: center;
+  justify-content: center;
+  justify-self: center;
+  background-color: white;
 }
-.mint-button:disabled{
-    width: 100%;
-    text-align: center;
-    font-weight: 700;
-    align-items: center;
-    justify-content: center;
-    justify-self: center;
-    background-color: red;
-}
-
-.connect-button{
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    align-self: center;
+.mint-button:disabled {
+  width: 100%;
+  text-align: center;
+  font-weight: 700;
+  align-items: center;
+  justify-content: center;
+  justify-self: center;
+  background-color: red;
 }
 
-.main-button:disabled{
-    background-color: red;
+.connect-button {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  align-self: center;
 }
 
-.quantity-input{
-    color: black;
+.main-button:disabled {
+  background-color: red;
 }
-.plus-button{
-    width: 30px;
-    margin-left: 20px;
-    height: 30px;
-    background-color: rgb(87, 85, 85);
-    border-radius: 5px;
+
+.quantity-input {
+  color: black;
 }
-.minus-button{
-    width: 30px;
-    margin-right: 20px;
-    height: 30px;
-    background-color: rgb(87, 85, 85);
-    border-radius: 5px;
+.plus-button {
+  width: 30px;
+  margin-left: 20px;
+  height: 30px;
+  background-color: rgb(87, 85, 85);
+  border-radius: 5px;
+}
+.minus-button {
+  width: 30px;
+  margin-right: 20px;
+  height: 30px;
+  background-color: rgb(87, 85, 85);
+  border-radius: 5px;
 }
