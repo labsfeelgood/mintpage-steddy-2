@@ -34,6 +34,7 @@ export function useMintWrite(count, maxQuantity, proof) {
       }));
 
       await tx.wait();
+      // notifyMintSuccessful()
 
       setStates((prevValue) => ({
         ...prevValue,

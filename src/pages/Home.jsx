@@ -34,7 +34,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Connect } from "../Connect.js";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { useAccount } from "wagmi";
+import { useAccount, useProvider } from "wagmi";
 import { useMemo } from "react";
 import { useAllowance } from "../hooks/useAllowance.js";
 import { useTotalMinted } from "../hooks/useTotalMinted.js";
@@ -46,8 +46,13 @@ import { usePrice } from "../hooks/usePrice.js";
 import { useAlreadyMinted } from "../hooks/useAlreadyMinted.js";
 import { useMintWrite } from "../hooks/useMintWrite.js";
 import { formatUnits } from "ethers/lib/utils.js";
-
+import { USDT_CONTRACT, STEDDY_CONTRACT } from "../constants.js";
+import erc20ABI from "../erc20ABI.json"
+import STEDDYABI from "../STEDDYABI.json"
+import { Contract } from "ethers";
 import "./Home.css";
+// import { ToastContainer, toast } from 'react-toastify';
+// import 'react-toastify/dist/ReactToastify.css';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -75,9 +80,10 @@ const imageArray2 = [
 ];
 
 export default function MintPage() {
-  const [isSelected, setIsSelected] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const [isSelected, setIsSelected] = useState(0);
+
   const [dropdownHeight, setDropdownHeight] = useState(0);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isWalletOpen, setIsWalletOpen] = useState(false);
@@ -96,18 +102,23 @@ export default function MintPage() {
   const { alreadyminted, isLoadingAlreadyMinted } = useAlreadyMinted();
   const { price, isLoadingPrice } = usePrice();
   const { address } = useAccount();
+  const provider = useProvider();
   const {
     approveWrite,
     approveWriteLoading,
     approveWriteSuccess,
     approveTxHash,
   } = useApproveWrite(getTotalAmount());
-  const [mainText, setMainText] = useState("Connect");
+  // const notifyMintSuccessful = () => toast("Mint successful");
+  const [mainText, setMainText] = useState("Approve USDT & Mint");
   const { mintLoading, mintSuccess, mintWrite, mintTxHash } = useMintWrite(
     count,
     maxQuantity,
     proof
   );
+const contract = new Contract(USDT_CONTRACT, erc20ABI, provider);
+const steddyContract = new Contract(STEDDY_CONTRACT, STEDDYABI, provider);
+
 
   // useApproveWrite(
   //   (Number(enteredAmount) - Number(formatEther(allowance))) * 10 ** 18
@@ -243,6 +254,17 @@ export default function MintPage() {
     }
   }, [count]);
 
+  useEffect(()=>{
+    if(approveWriteSuccess){
+      setMainText("Mint")
+    }
+  },[approveWriteSuccess])
+  useEffect(()=>{
+    if(mintSuccess){
+      setMainText("Mint")
+    }
+  },[mintSuccess])
+
   const submit = async () => {
     // if (Number(enteredAmount) === 0) {
     //   setError("Enter some amount");
@@ -272,10 +294,12 @@ export default function MintPage() {
     // }
 
     let proofData = getQuantityAndProof(address);
+    console.log("PRROF DATA ", proofData)
     if (proofData == null) {
       alert("Your connected wallet is not whitelisted");
       return;
     }
+    
     // return
     let _proof = proofData.proof;
     setProof(_proof);
@@ -286,21 +310,35 @@ export default function MintPage() {
     console.log("PROOF ", proof);
     console.log("MX QTY ", maxQty);
     console.log("TOT AMT ", getTotalAmount());
-
-    console.log("allowance ", Number(allowance));
-
-    if (Number(allowance) < Number(getTotalAmount())) {
+    const alreadyminted = await steddyContract.mintedAddresses(address);
+    if(alreadyminted>=maxQty){
+      alert("You have already minted the maximum allowed "+Number(alreadyminted)+" tokens");
+      return;
+    }
+    
+    const data = await contract.allowance(address, STEDDY_CONTRACT);
+    console.log("allowance ", Number(data));
+    if (Number(data) < Number(getTotalAmount())) {
       console.log("ALLOWANCE IS LESS");
       setMainText("Approving");
 
       await approveWrite(getTotalAmount());
-      console.log("Approve laoding ", approveWriteLoading);
+      console.log("Approve write success ", approveWriteSuccess);
+      console.log("Approve Allowance ", allowance);
+      console.log("TOT AMT 2 ",  Number(getTotalAmount()));
+      
+      
+      const data = await contract.allowance(address, STEDDY_CONTRACT);
+      console.log("allowance  2 ", data);
+      setMainText("Mint");
+      let _proof = getQuantityAndProof(address).proof
+      console.log("Approve proof ", _proof);
+      // if (Number(data) >= Number(getTotalAmount())) {
+        
+      //   console.log("MINTING ", approveWriteSuccess);
 
-      if (approveWriteSuccess) {
-        setMainText("Minting");
-        console.log("MINTING ", approveWriteSuccess);
-        await mintWrite(count, maxQuantity, proof);
-      }
+      //   await mintWrite(count, maxQuantity, _proof);
+      // }
     } else {
       console.log("DIRECT MINTING ");
       console.log("maxqty ", maxQuantity);
@@ -309,6 +347,10 @@ export default function MintPage() {
       setMainText("Minting");
       console.log("Mint laoding ", mintLoading);
       await mintWrite(count, maxQuantity, proof);
+
+      if(!mintLoading){
+        setMainText("Mint")
+      }
     }
 
     // setShowBetText(true);
@@ -707,7 +749,8 @@ export default function MintPage() {
                     {mainText}
                   </button>
                 ) : (
-                  <ConnectButton showBalance={false} chainStatus="icon" />
+                  <div className="connect-button"><ConnectButton  showBalance={false} chainStatus="icon" /></div>
+                  
                 )}
                 {txHashToShow ? (
                   <p className="text-center mt-1">
@@ -722,6 +765,19 @@ export default function MintPage() {
                     </a>
                   </p>
                 ) : null}
+                 {/* {txHashToShow ? (
+                  <p className="text-center mt-1">
+                    Check transaction on
+                    <a
+                      target="_blank"
+                      href={`https://mumbai.polygonscan.com/tx/${txHashToShow}`}
+                      rel="noreferrer"
+                      className="ml-1 text-green-500"
+                    >
+                      Explorer
+                    </a>
+                  </p>
+                ) : null} */}
               </div>
             )}
             {isSelected === 1 && <About />}
