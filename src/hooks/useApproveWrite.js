@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Contract, utils } from "ethers";
 import erc20ABI from "../erc20ABI.json";
 
-export function useApproveWrite(amount) {
+export function useApproveWrite(amount,setSuccessMessages) {
   const { data: signer } = useSigner();
   const [states, setStates] = useState({
     isLoading: false,
@@ -32,7 +32,7 @@ export function useApproveWrite(amount) {
 
       console.log("Approve tx ", tx);
       await tx.wait();
-
+      setSuccessMessages("Approve successful. Mint now")
       setStates((prevValue) => ({
         ...prevValue,
         isLoading: false,

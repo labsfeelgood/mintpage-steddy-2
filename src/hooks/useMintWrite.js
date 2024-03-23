@@ -5,7 +5,7 @@ import { Contract, utils } from "ethers";
 import erc20ABI from "../erc20ABI.json";
 import STEDDYABI from "../STEDDYABI.json";
 
-export function useMintWrite(count, maxQuantity, proof) {
+export function useMintWrite(count, maxQuantity, proof,setSuccessMessages) {
   const { data: signer } = useSigner();
   const [states, setStates] = useState({
     isLoading: false,
@@ -34,8 +34,7 @@ export function useMintWrite(count, maxQuantity, proof) {
       }));
 
       await tx.wait();
-      // notifyMintSuccessful()
-
+      setSuccessMessages("Mint successful")
       setStates((prevValue) => ({
         ...prevValue,
         isLoading: false,

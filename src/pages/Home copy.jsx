@@ -51,8 +51,8 @@ import erc20ABI from "../erc20ABI.json"
 import STEDDYABI from "../STEDDYABI.json"
 import { Contract } from "ethers";
 import "./Home.css";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+// import { ToastContainer, toast } from 'react-toastify';
+// import 'react-toastify/dist/ReactToastify.css';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -103,22 +103,18 @@ export default function MintPage() {
   const { price, isLoadingPrice } = usePrice();
   const { address } = useAccount();
   const provider = useProvider();
-  const[successMessages, setSuccessMessages] = useState(null)
-  const[newCount, setNewCount] = useState(0)
   const {
     approveWrite,
     approveWriteLoading,
     approveWriteSuccess,
     approveTxHash,
-  } = useApproveWrite(getTotalAmount(), setSuccessMessages);
-  const notifyLowbalance = () => toast("USDT balance is low");
- 
+  } = useApproveWrite(getTotalAmount());
+  // const notifyMintSuccessful = () => toast("Mint successful");
   const [mainText, setMainText] = useState("Approve USDT & Mint");
   const { mintLoading, mintSuccess, mintWrite, mintTxHash } = useMintWrite(
     count,
     maxQuantity,
-    proof,
-    setSuccessMessages
+    proof
   );
 const contract = new Contract(USDT_CONTRACT, erc20ABI, provider);
 const steddyContract = new Contract(STEDDY_CONTRACT, STEDDYABI, provider);
@@ -142,14 +138,6 @@ const steddyContract = new Contract(STEDDY_CONTRACT, STEDDYABI, provider);
       setCount((prevCount) => prevCount + 1);
     }
   };
-
-  useState(()=>{
-    console.log("SMC 2")
-    if(successMessages === "Mint successful"){
-      setMainText("Approve USDT & Mint")
-      console.log("SMC 2")
-    }
-  }, successMessages)
 
   const handleDecrement = () => {
     if (count > 1) {
@@ -243,48 +231,39 @@ const steddyContract = new Contract(STEDDY_CONTRACT, STEDDYABI, provider);
     setIsWalletOpen(!isWalletOpen);
   };
 
-
-  // useEffect(()=>{
-  //   if(approveWriteSuccess){
-  //     setMainText("Mint")
-  //   }
-  // },[approveWriteSuccess])
-
-
   useEffect(() => {
-    async function applyMintSuccess() {
-      if(mintSuccess){
-        setMainText("Approve USDT & Mint")
-        let count = await steddyContract.totalMinted()
-        setNewCount(count)
-      }      
+    if (address == null || allowance == null || getTotalAmount() == 0) {
+      return;
     }
-
-    applyMintSuccess()
-  }, [mintSuccess])
-
-  useEffect(() => {
-    async function fetchMyAllownace() {
-      if(address && price){
-        let response = await contract.allowance(address, STEDDY_CONTRACT)
-        console.log("use effect changes ", response)
-        let result = Number(price) * count;
-        console.log("GET TOTAL AMOUNT ", result)
-        if(Number(response) >= Number(result)){
-          setMainText("Mintt")
-        }else{
-          setMainText("Approve USDT & Mint")
-        }
-      }else{
-        console.log("use effect changes")
-      }
-      
+    let proofData = getQuantityAndProof(address);
+    if (proofData == null) {
+      alert("Your connected wallet is not whitelisted");
+      return;
     }
+    // return
+    let _proof = proofData.proof;
+    setProof(_proof);
+    // proof = JSON.stringify(proof)
+    // proof = "["+proof+"]"
+    let maxQty = proofData.quantity;
+    setMaxQuantity(maxQty);
+    if (Number(formatUnits(allowance, 6)) <= Number(getTotalAmount())) {
+      setMainText("Mint");
+    } else {
+      setMainText("Approve");
+    }
+  }, [count]);
 
-    fetchMyAllownace()
-  }, [address, count, price])
-
-   
+  useEffect(()=>{
+    if(approveWriteSuccess){
+      setMainText("Mint")
+    }
+  },[approveWriteSuccess])
+  useEffect(()=>{
+    if(mintSuccess){
+      setMainText("Mint")
+    }
+  },[mintSuccess])
 
   const submit = async () => {
     // if (Number(enteredAmount) === 0) {
@@ -296,7 +275,6 @@ const steddyContract = new Contract(STEDDY_CONTRACT, STEDDYABI, provider);
     //   setError("Enter minimum bet amount");
     //   return;
     // }
-    
 
     if (isLoadingAllowance === false && allowance === undefined) {
       // setError("Issue in getting your allowance");
@@ -316,7 +294,7 @@ const steddyContract = new Contract(STEDDY_CONTRACT, STEDDYABI, provider);
     // }
 
     let proofData = getQuantityAndProof(address);
-    // console.log("PRROF DATA ", proofData)
+    console.log("PRROF DATA ", proofData)
     if (proofData == null) {
       alert("Your connected wallet is not whitelisted");
       return;
@@ -328,41 +306,26 @@ const steddyContract = new Contract(STEDDY_CONTRACT, STEDDYABI, provider);
     // proof = JSON.stringify(proof)
     // proof = "["+proof+"]"
     let maxQty = proofData.quantity;
-    let totalAmount = getTotalAmount()
-    if(getTotalAmount==0 || isLoadingPrice){
-      return
-    }
-    setMainText("Processing");
     setMaxQuantity(maxQty);
     console.log("PROOF ", proof);
     console.log("MX QTY ", maxQty);
-    console.log("TOT AMT ", totalAmount);
-
+    console.log("TOT AMT ", getTotalAmount());
     const alreadyminted = await steddyContract.mintedAddresses(address);
     if(alreadyminted>=maxQty){
       alert("You have already minted the maximum allowed "+Number(alreadyminted)+" tokens");
-      setMainText("Approve USDT & Mint")
       return;
     }
     
     const data = await contract.allowance(address, STEDDY_CONTRACT);
     console.log("allowance ", Number(data));
-
-    const balance = await contract.balanceOf(address);
-    console.log("balance ", Number(balance));
-    if(Number(balance)<Number(totalAmount)){
-      alert("Low USDT balance")
-      return
-    }
-    setSuccessMessages("")
-    if (Number(data) < Number(totalAmount)) {
+    if (Number(data) < Number(getTotalAmount())) {
       console.log("ALLOWANCE IS LESS");
       setMainText("Approving");
 
-      await approveWrite(totalAmount);
+      await approveWrite(getTotalAmount());
       console.log("Approve write success ", approveWriteSuccess);
       console.log("Approve Allowance ", allowance);
-      console.log("TOT AMT 2 ",  Number(totalAmount));
+      console.log("TOT AMT 2 ",  Number(getTotalAmount()));
       
       
       const data = await contract.allowance(address, STEDDY_CONTRACT);
@@ -380,14 +343,14 @@ const steddyContract = new Contract(STEDDY_CONTRACT, STEDDYABI, provider);
       console.log("DIRECT MINTING ");
       console.log("maxqty ", maxQuantity);
       console.log("count ", count);
-      console.log("proof ", _proof);
+      console.log("proof ", proof);
       setMainText("Minting");
       console.log("Mint laoding ", mintLoading);
-      await mintWrite(count, maxQty, _proof);
+      await mintWrite(count, maxQuantity, proof);
 
-      // if(!mintLoading){
-      //   setMainText("Mint")
-      // }
+      if(!mintLoading){
+        setMainText("Mint")
+      }
     }
 
     // setShowBetText(true);
@@ -718,7 +681,7 @@ const steddyContract = new Contract(STEDDY_CONTRACT, STEDDYABI, provider);
                 <div className="flex justify-between">
                   <span className="text-sm text-green-500">Live</span>
                   <span className="text-sm text-gray-400 font-semibold">
-                    {newCount==0?totalMinted:newCount} / {maxSupply} Minted
+                    {totalMinted} / {maxSupply} Minted
                   </span>
                 </div>
                 <div style={{ textAlign: "center" }}>
@@ -791,7 +754,7 @@ const steddyContract = new Contract(STEDDY_CONTRACT, STEDDYABI, provider);
                 )}
                 {txHashToShow ? (
                   <p className="text-center mt-1">
-                    Check last transaction on
+                    Check transaction on
                     <a
                       target="_blank"
                       href={`https://mumbai.polygonscan.com/tx/${txHashToShow}`}
@@ -800,11 +763,6 @@ const steddyContract = new Contract(STEDDY_CONTRACT, STEDDYABI, provider);
                     >
                       Explorer
                     </a>
-                  </p>
-                ) : null}
-                {successMessages ? (
-                  <p className="text-center mt-1">
-                    {successMessages}
                   </p>
                 ) : null}
                  {/* {txHashToShow ? (
